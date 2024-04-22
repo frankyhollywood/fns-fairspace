@@ -15,16 +15,18 @@ import {getExternalStoragePathPrefix} from '../external-storage/externalStorageU
 import {getExternalMetadataSourcePathPrefix} from '../metadata/external-sources/externalMetadataSourceUtils';
 import {METADATA_VIEW_MENU_LABEL} from '../constants';
 
-const styles = {
+const styles = theme => ({
     mainMenuButton: {
         paddingTop: 15,
         paddingBottom: 15
     },
     divider: {
         marginTop: 7,
-        marginBottom: 7
+        marginBottom: 7,
+        borderBottom: '1.5px solid ' + theme.palette.primary.dark
     }
-};
+});
+
 const MainMenu = ({classes}) => {
     const {pathname} = window.location;
     const {services} = useContext(ServicesContext);
@@ -52,8 +54,8 @@ const MainMenu = ({classes}) => {
                 <ListItemButton
                     className={classes.mainMenuButton}
                     component={NavLink}
-                    to="/question"
-                    selected={pathname.startsWith('/question')}
+                    to="/ask"
+                    selected={pathname.startsWith('/ask')}
                 >
                     <ListItemIcon>
                         <ChatIcon />

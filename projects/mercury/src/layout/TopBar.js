@@ -8,7 +8,8 @@ import UserMenu from './UserMenu';
 
 const styles = theme => ({
     root: {
-        zIndex: theme.zIndex.drawer + 1
+        zIndex: theme.zIndex.drawer + 1,
+        borderBottom: '5px solid ' + theme.palette.primary.dark
     },
     title: {
         flexGrow: 1,

@@ -8,6 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import ServicesContext from '../common/contexts/ServicesContext';
 import UserContext from '../users/UserContext';
 import {isAdmin} from '../users/userUtils';
+import FeaturesContext from '../common/contexts/FeaturesContext';
 import MetadataViewContext from '../metadata/views/MetadataViewContext';
 import ExternalStoragesContext from '../external-storage/ExternalStoragesContext';
 import ExternalMetadataSourceContext from '../metadata/external-sources/ExternalMetadataSourceContext';
@@ -34,6 +35,10 @@ const MainMenu = ({classes}) => {
     const {externalStorages} = useContext(ExternalStoragesContext);
     const {externalMetadataSources} = useContext(ExternalMetadataSourceContext);
     const {views} = useContext(MetadataViewContext);
+
+    const {isFeatureEnabled} = useContext(FeaturesContext);
+    const useLlmSearch = isFeatureEnabled('LlmSearch');
+
     // eslint-disable-next-line no-template-curly-in-string
     const interpolate = s => s.replace('${username}', currentUser.username);
     return (
@@ -51,17 +56,19 @@ const MainMenu = ({classes}) => {
                     <ListItemText primary="Home" />
                 </ListItemButton>
                 <Divider className={classes.divider} />
-                <ListItemButton
-                    className={classes.mainMenuButton}
-                    component={NavLink}
-                    to="/ask"
-                    selected={pathname.startsWith('/ask')}
-                >
-                    <ListItemIcon>
-                        <ChatIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Ask AI" />
-                </ListItemButton>
+                {useLlmSearch && (
+                    <ListItemButton
+                        className={classes.mainMenuButton}
+                        component={NavLink}
+                        to="/ask"
+                        selected={pathname.startsWith('/ask')}
+                    >
+                        <ListItemIcon>
+                            <ChatIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Ask AI" />
+                    </ListItemButton>
+                )}
                 {views && views.length > 0 && currentUser.canViewPublicMetadata && (
                     <ListItemButton
                         className={classes.mainMenuButton}

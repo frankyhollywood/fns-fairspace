@@ -2,9 +2,9 @@ package io.fairspace.saturn.auth;
 
 import java.io.*;
 import java.util.*;
-import javax.security.cert.*;
-import javax.servlet.ServletRequest;
+import javax.security.cert.X509Certificate;
 
+import jakarta.servlet.ServletRequest;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.Request;
 import org.keycloak.KeycloakPrincipal;
@@ -19,7 +19,7 @@ import org.keycloak.adapters.spi.*;
 import org.keycloak.common.util.*;
 import org.keycloak.representations.adapters.config.AdapterConfig;
 
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 class SaturnKeycloakJettyAuthenticator extends KeycloakJettyAuthenticator {
     /**
@@ -126,11 +126,16 @@ class SaturnKeycloakJettyAuthenticator extends KeycloakJettyAuthenticator {
             return facade.getResponse();
         }
 
-        @SuppressWarnings("removal")
         @Override
         public X509Certificate[] getCertificateChain() {
-            return facade.getCertificateChain();
+            return new X509Certificate[0];
         }
+
+        //        @SuppressWarnings("removal")
+        //        @Override
+        //        public X509Certificate[] getCertificateChain() {
+        //            return facade.getCertificateChain();
+        //        }
     }
 
     SaturnKeycloakJettyAuthenticator(AdapterConfig config) {
@@ -145,27 +150,28 @@ class SaturnKeycloakJettyAuthenticator extends KeycloakJettyAuthenticator {
             @Override
             public AuthChallenge getChallenge() {
                 // No redirects for API requests
-                if (request.getOriginalURI().startsWith("/api/")) {
-                    return new AuthChallenge() {
-                        @Override
-                        public boolean challenge(HttpFacade exchange) {
-                            if (deployment.isEnableBasicAuth()
-                                    && exchange.getRequest().getCookie("JSESSIONID") == null
-                                    && !exchange.getRequest()
-                                            .getHeader("X-Requested-With")
-                                            .equals("XMLHttpRequest")) {
-                                exchange.getResponse().addHeader("WWW-Authenticate", "Basic");
-                            }
-                            exchange.getResponse().setStatus(getResponseCode());
-                            return true;
-                        }
+                // todo: bring it with spring security
+                                if (request.getOriginalURI().startsWith("/api/")) {
+                                    return new AuthChallenge() {
+                                        @Override
+                                        public boolean challenge(HttpFacade exchange) {
+                                            if (deployment.isEnableBasicAuth()
+                                                    && exchange.getRequest().getCookie("JSESSIONID") == null
+                                                    && !exchange.getRequest()
+                                                            .getHeader("X-Requested-With")
+                                                            .equals("XMLHttpRequest")) {
+                                                exchange.getResponse().addHeader("WWW-Authenticate", "Basic");
+                                            }
+                                            exchange.getResponse().setStatus(getResponseCode());
+                                            return true;
+                                        }
 
-                        @Override
-                        public int getResponseCode() {
-                            return SC_UNAUTHORIZED;
-                        }
-                    };
-                }
+                                        @Override
+                                        public int getResponseCode() {
+                                            return SC_UNAUTHORIZED;
+                                        }
+                                    };
+                                }
 
                 return super.getChallenge();
             }
@@ -179,7 +185,7 @@ class SaturnKeycloakJettyAuthenticator extends KeycloakJettyAuthenticator {
         };
     }
 
-    @Override
+    //    @Override
     public void logout(ServletRequest request) {
         logoutCurrent((Request) request);
     }

@@ -72,7 +72,7 @@ dependencies {
     implementation("org.json:json:20240303")
 
     // LLM is customer specific. By default the jar will be a demo implementation, overwrite it with customer specific implementation
-    implementation files("libs/nl-hyve-fairspace-demo-v2.4.jar")
+    implementation files("libs/nl-hyve-fairspace-fns-v0.2.jar")
 
     runtimeOnly 'org.apache.logging.log4j:log4j-api:2.23.0'
     runtimeOnly 'org.apache.logging.log4j:log4j-core:2.23.0'

@@ -20,14 +20,14 @@ const styles = theme => ({
     centralPanel: {
         overflowX: 'auto',
         width: '100%',
-        overflowY: 'hidden',
-        maxHeight: 'calc(100vh - 150px)'
+        overflowY: 'hidden'
     },
     clearAllButtonContainer: {
         textAlign: 'end'
     },
     clearAllButton: {
-        color: theme.palette.error.main
+        color: theme.palette.primary.contrastText,
+        background: theme.palette.primary.main
     },
     activeFilters: {
         marginBottom: 10

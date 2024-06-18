@@ -24,7 +24,7 @@ const styles = theme => ({
     divider: {
         marginTop: 7,
         marginBottom: 7,
-        borderBottom: '1.5px solid ' + theme.palette.primary.dark
+        borderBottom: '1.5px solid ' + theme.palette.primary.light
     }
 });
 

@@ -16,6 +16,7 @@ fairspace:
       enabled: false
   features:
     - ExtraStorage
+    - LlmSearch
   services:
     JupyterHub: http://jupyterhub.local/user/${username}/lab
 

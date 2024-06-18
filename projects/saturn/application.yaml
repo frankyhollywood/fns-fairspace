@@ -53,6 +53,7 @@ services:
   "test username": http://google.com?q=${username}
 features:
   - ExtraStorage
+  - LlmSearch
 viewDatabase:
   enabled: true
   url: jdbc:postgresql://localhost:9432/fairspace

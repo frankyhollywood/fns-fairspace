@@ -12,10 +12,7 @@ env:
   DOCKER_REGISTRY: ghcr.io
 
 on:
-  push:
-    branches:
-      - dev
-      - release
+  push
 
 jobs:
   # A job to generate one shared unique version tag per build cycle for all built artifacts

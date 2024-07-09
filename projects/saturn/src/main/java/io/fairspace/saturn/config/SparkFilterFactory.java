@@ -21,7 +21,7 @@ public class SparkFilterFactory {
                 new MetadataApp(apiPathPrefix + "/metadata", svc.getMetadataService()),
                 new ViewApp(apiPathPrefix + "/views", svc.getViewService(), svc.getQueryService()),
                 new SearchApp(apiPathPrefix + "/search", svc.getSearchService(), svc.getQueryService()),
-                new AiSearchApp(apiPathPrefix + "/aisearch"),
+                new AiSearchApp(apiPathPrefix + "/aisearch", config),
                 new VocabularyApp(apiPathPrefix + "/vocabulary"),
                 new UserApp(apiPathPrefix + "/users", svc.getUserService()),
                 new ServicesApp(apiPathPrefix + "/services", config.services),

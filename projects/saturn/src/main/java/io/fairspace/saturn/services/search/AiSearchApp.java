@@ -1,29 +1,33 @@
 package io.fairspace.saturn.services.search;
 
-import java.io.FileWriter;
+import lombok.extern.log4j.*;
+import nl.hyve.llm.LlmConversation;
+
+import org.json.JSONObject;
+
+import spark.Request;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import lombok.extern.log4j.*;
-import nl.hyve.llm.LlmConversation;
-import org.json.JSONObject;
-import spark.Request;
-
+import io.fairspace.saturn.config.Config;
 import io.fairspace.saturn.services.BaseApp;
 
 import static io.fairspace.saturn.auth.RequestContext.getAccessToken;
-
 import static org.eclipse.jetty.http.MimeTypes.Type.APPLICATION_JSON;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
+import java.io.FileWriter;
+
 @Log4j2
 public class AiSearchApp extends BaseApp {
+    private Config config;
 
-    public AiSearchApp(String basePath) {
+    public AiSearchApp(String basePath, Config config) {
         super(basePath);
+        this.config = config;
     }
 
     @Override
@@ -38,16 +42,14 @@ public class AiSearchApp extends BaseApp {
         });
 
         get("/allconversations", "application/json", (req, res) -> {
-            try (var conversations = Files.list(Paths.get("./data/conversations/" + getUserKey()))) {
-                var content = conversations
-                        .map(path -> {
-                            try {
-                                return new String(Files.readAllBytes(path));
-                            } catch (Exception e) {
-                                return "{}";
-                            }
-                        })
-                        .collect(Collectors.toList());
+            try (var conversations = Files.list(Paths.get(config.llmConversationPath + "/" + getUserKey()))) {
+                var content = conversations.map(path -> {
+                    try {
+                        return new String(Files.readAllBytes(path));
+                    } catch (Exception e) {
+                        return "{}";
+                    }
+                }).collect(Collectors.toList());
 
                 var result = new ArrayList<JSONObject>();
                 for (var c : content) {
@@ -55,18 +57,10 @@ public class AiSearchApp extends BaseApp {
                         var obj = new JSONObject(c);
                         var conversation = new JSONObject();
                         conversation.put("id", obj.getJSONObject("conversation").getString("conversationId"));
-                        conversation.put(
-                                "topic",
-                                obj.getJSONObject("conversation")
-                                        .getJSONArray("messages")
-                                        .getJSONObject(0)
-                                        .getJSONObject("userInput")
-                                        .getString("input"));
-                        conversation.put(
-                                "start",
-                                new LlmConversation()
-                                        .getStartTime(obj.getJSONObject("conversation")
-                                                .getString("startTime")));
+                        conversation.put("topic", obj.getJSONObject("conversation").getJSONArray("messages")
+                                .getJSONObject(0).getJSONObject("userInput").getString("input"));
+                        conversation.put("start", new LlmConversation()
+                                .getStartTime(obj.getJSONObject("conversation").getString("startTime")));
 
                         result.add(conversation);
                     } catch (Exception e) {
@@ -108,7 +102,7 @@ public class AiSearchApp extends BaseApp {
                 }
 
                 var conversationId = req.params(":id");
-                var filename = "./data/conversations/" + getUserKey() + "/" + conversationId + ".json";
+                var filename = config.llmConversationPath + "/" + getUserKey() + "/" + conversationId + ".json";
 
                 res.type(APPLICATION_JSON.asString());
 
@@ -145,7 +139,7 @@ public class AiSearchApp extends BaseApp {
                 var conversationId = body.getString("conversationId");
 
                 var result = new LlmConversation().continueChat(conversationId, query);
-                var filepath = "./data/conversations/" + getUserKey();
+                var filepath = config.llmConversationPath + "/" + getUserKey();
                 var file = new java.io.File(filepath + "/" + conversationId + ".json");
 
                 Files.createDirectories(Paths.get(filepath));
@@ -172,7 +166,7 @@ public class AiSearchApp extends BaseApp {
                 }
 
                 var conversationId = req.params(":id");
-                var filename = "./data/conversations/" + getUserKey() + "/" + conversationId + ".json";
+                var filename = config.llmConversationPath + "/" + getUserKey() + "/" + conversationId + ".json";
 
                 try {
                     Files.deleteIfExists(Paths.get(filename));

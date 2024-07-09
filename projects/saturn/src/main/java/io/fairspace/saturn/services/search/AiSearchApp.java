@@ -1,25 +1,24 @@
 package io.fairspace.saturn.services.search;
 
-import lombok.extern.log4j.*;
-import nl.hyve.llm.LlmConversation;
-
-import org.json.JSONObject;
-
-import spark.Request;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import lombok.extern.log4j.*;
+import nl.hyve.llm.LlmConversation;
+import org.json.JSONObject;
+import spark.Request;
+
 import io.fairspace.saturn.config.Config;
 import io.fairspace.saturn.services.BaseApp;
 
 import static io.fairspace.saturn.auth.RequestContext.getAccessToken;
+
 import static org.eclipse.jetty.http.MimeTypes.Type.APPLICATION_JSON;
 import static spark.Spark.get;
 import static spark.Spark.post;
-
-import java.io.FileWriter;
 
 @Log4j2
 public class AiSearchApp extends BaseApp {
@@ -43,13 +42,15 @@ public class AiSearchApp extends BaseApp {
 
         get("/allconversations", "application/json", (req, res) -> {
             try (var conversations = Files.list(Paths.get(config.llmConversationPath + "/" + getUserKey()))) {
-                var content = conversations.map(path -> {
-                    try {
-                        return new String(Files.readAllBytes(path));
-                    } catch (Exception e) {
-                        return "{}";
-                    }
-                }).collect(Collectors.toList());
+                var content = conversations
+                        .map(path -> {
+                            try {
+                                return new String(Files.readAllBytes(path));
+                            } catch (Exception e) {
+                                return "{}";
+                            }
+                        })
+                        .collect(Collectors.toList());
 
                 var result = new ArrayList<JSONObject>();
                 for (var c : content) {
@@ -57,10 +58,18 @@ public class AiSearchApp extends BaseApp {
                         var obj = new JSONObject(c);
                         var conversation = new JSONObject();
                         conversation.put("id", obj.getJSONObject("conversation").getString("conversationId"));
-                        conversation.put("topic", obj.getJSONObject("conversation").getJSONArray("messages")
-                                .getJSONObject(0).getJSONObject("userInput").getString("input"));
-                        conversation.put("start", new LlmConversation()
-                                .getStartTime(obj.getJSONObject("conversation").getString("startTime")));
+                        conversation.put(
+                                "topic",
+                                obj.getJSONObject("conversation")
+                                        .getJSONArray("messages")
+                                        .getJSONObject(0)
+                                        .getJSONObject("userInput")
+                                        .getString("input"));
+                        conversation.put(
+                                "start",
+                                new LlmConversation()
+                                        .getStartTime(obj.getJSONObject("conversation")
+                                                .getString("startTime")));
 
                         result.add(conversation);
                     } catch (Exception e) {

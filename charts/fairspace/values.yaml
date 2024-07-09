@@ -73,6 +73,8 @@ saturn:
       size: 50Gi
     database:
       size: 50Gi
+    conversations:
+      size: 10Gi
     audit:
       size: 5Gi
     extra-file-storage:
